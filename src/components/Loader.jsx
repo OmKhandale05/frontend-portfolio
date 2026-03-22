@@ -22,11 +22,7 @@ const Loader = ({ onComplete }) => {
     let counter = { value: 0 };
 
     // 1. Initial fade in whole screen
-    tl.fromTo(
-      loaderRef.current,
-      { opacity: 0 },
-      { opacity: 1, duration: 0.6 }
-    )
+    tl.fromTo(loaderRef.current, { opacity: 0 }, { opacity: 1, duration: 0.6 })
 
       // 2. Letters stagger up
       .fromTo(
@@ -49,8 +45,7 @@ const Loader = ({ onComplete }) => {
           ease: "power1.out",
           onUpdate: () => {
             if (counterRef.current) {
-              counterRef.current.innerText =
-                Math.floor(counter.value) + "%";
+              counterRef.current.innerText = Math.floor(counter.value) + "%";
             }
           },
         },
@@ -70,44 +65,43 @@ const Loader = ({ onComplete }) => {
       )
 
       // 5. Fade out content
-      .to(
-        [lettersRef.current, counterRef.current],
-        {
-          opacity: 0,
-          y: -40,
-          stagger: 0.1,
-          duration: 0.6,
-        }
-      )
+      .to([lettersRef.current, counterRef.current], {
+        opacity: 0,
+        y: -40,
+        stagger: 0.1,
+        duration: 0.6,
+      })
 
       // 6. Small delay (feels intentional)
       .to({}, { duration: 0.3 });
-
   }, []);
 
   return (
     <div
       ref={loaderRef}
-      className="fixed inset-0 bg-black text-white flex flex-col items-center justify-center overflow-hidden"
+      className="fixed inset-0 bg-[#FEFFFF] text-[#2C3333] flex flex-col items-center justify-center overflow-hidden"
     >
-      {/* Initials */}
-      <div className="flex text-7xl font-bold tracking-widest">
+      <div className="flex text-7xl font-bold tracking-widest text-aeonik">
         {"OK".split("").map((letter, i) => (
-          <span
-            key={i}
-            ref={(el) => (lettersRef.current[i] = el)}
-          >
+          <span key={i} ref={(el) => (lettersRef.current[i] = el)}>
             {letter}
           </span>
         ))}
       </div>
 
-      {/* Counter */}
-      <div
-        ref={counterRef}
-        className="mt-6 text-lg opacity-80 tracking-widest"
-      >
+      <div ref={counterRef} className="mt-6 text-lg opacity-80 tracking-widest">
         0%
+      </div>
+      <div className="absolute bottom-6 left-6 flex">
+        {"LOADING".split("").map((letter, i) => (
+          <span
+            key={i}
+            ref={(el) => (lettersRef.current[i] = el)}
+            className="text-[#2C3333] font-bold text-5xl tracking-widest"
+          >
+            {letter}
+          </span>
+        ))}
       </div>
     </div>
   );

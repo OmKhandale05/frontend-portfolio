@@ -1,1 +1,10 @@
 @import "tailwindcss";
+
+.text-aeonik {
+  font-family: 'Aeonik', sans-serif;
+  font-weight: 400;
+  color: #2C3333;
+
+  letter-spacing: 0.2px; /* subtle polish */
+  line-height: 1.4;
+}
