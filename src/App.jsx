@@ -2,17 +2,15 @@ import { useState } from "react";
 import Loader from "./components/Loader";
 
 function App() {
-  const [showLoader, setShowLoader] = useState(true);
+  const [done, setDone] = useState(false);
 
   return (
     <>
-      {showLoader && (
-        <Loader onComplete={() => setShowLoader(false)} />
-      )}
+      {!done && <Loader onComplete={() => setDone(true)} />}
 
-      {!showLoader && (
+      {done && (
         <div className="h-screen flex items-center justify-center">
-          <h1 className="text-4xl">Home Page</h1>
+          <h1 className="text-4xl">Welcome </h1>
         </div>
       )}
     </>

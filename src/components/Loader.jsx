@@ -1,88 +1,114 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
 
 const Loader = ({ onComplete }) => {
   const loaderRef = useRef(null);
-  const textRef = useRef(null);
+  const lettersRef = useRef([]);
   const counterRef = useRef(null);
-  const bottomRef = useRef(null);
 
-  const [progress, setProgress] = useState(0);
-
-  // Counter logic
   useEffect(() => {
-    let count = 0;
-
-    const interval = setInterval(() => {
-      count++;
-      setProgress(count);
-
-      if (count >= 100) {
-        clearInterval(interval);
-      }
-    }, 20);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // GSAP animation
-  useEffect(() => {
-    const tl = gsap.timeline();
-
-    tl.fromTo(
-      textRef.current,
-      { opacity: 0, scale: 0.8 },
-      { opacity: 1, scale: 1, duration: 1, ease: "power3.out" }
-    )
-      .fromTo(
-        bottomRef.current,
-        { opacity: 0, y: 20 },
-        { opacity: 0.7, y: 0, duration: 1 },
-        "-=0.5"
-      );
-  }, []);
-
-  const handleEnter = () => {
-    gsap.to(loaderRef.current, {
-      y: "-100%",
-      duration: 1,
-      ease: "power4.inOut",
-      onComplete: onComplete,
+    const tl = gsap.timeline({
+      defaults: { ease: "power3.out" },
+      onComplete: () => {
+        gsap.to(loaderRef.current, {
+          y: "-100%",
+          duration: 1.2,
+          ease: "power4.inOut",
+          onComplete: onComplete,
+        });
+      },
     });
-  };
+
+    let counter = { value: 0 };
+
+    // 1. Initial fade in whole screen
+    tl.fromTo(
+      loaderRef.current,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.6 }
+    )
+
+      // 2. Letters stagger up
+      .fromTo(
+        lettersRef.current,
+        { y: 120, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          stagger: 0.08,
+          duration: 1,
+        }
+      )
+
+      // 3. Counter animation
+      .to(
+        counter,
+        {
+          value: 100,
+          duration: 2.5,
+          ease: "power1.out",
+          onUpdate: () => {
+            if (counterRef.current) {
+              counterRef.current.innerText =
+                Math.floor(counter.value) + "%";
+            }
+          },
+        },
+        "-=0.8"
+      )
+
+      // 4. Slight scale effect (premium feel)
+      .to(
+        lettersRef.current,
+        {
+          scale: 1.1,
+          duration: 0.6,
+          yoyo: true,
+          repeat: 1,
+        },
+        "-=1"
+      )
+
+      // 5. Fade out content
+      .to(
+        [lettersRef.current, counterRef.current],
+        {
+          opacity: 0,
+          y: -40,
+          stagger: 0.1,
+          duration: 0.6,
+        }
+      )
+
+      // 6. Small delay (feels intentional)
+      .to({}, { duration: 0.3 });
+
+  }, []);
 
   return (
     <div
       ref={loaderRef}
-      className="fixed inset-0 bg-black text-white flex flex-col items-center justify-center"
+      className="fixed inset-0 bg-black text-white flex flex-col items-center justify-center overflow-hidden"
     >
       {/* Initials */}
-      <h1 ref={textRef} className="text-6xl font-bold tracking-widest">
-        OK
-      </h1>
-
-      {/* Counter */}
-      <p ref={counterRef} className="mt-4 text-lg">
-        {progress}%
-      </p>
-
-      {/* Bottom text */}
-      <div
-        ref={bottomRef}
-        className="absolute bottom-6 text-sm opacity-70"
-      >
-        LOADING
+      <div className="flex text-7xl font-bold tracking-widest">
+        {"OK".split("").map((letter, i) => (
+          <span
+            key={i}
+            ref={(el) => (lettersRef.current[i] = el)}
+          >
+            {letter}
+          </span>
+        ))}
       </div>
 
-      {/* CTA */}
-      {progress === 100 && (
-        <button
-          onClick={handleEnter}
-          className="mt-6 px-6 py-2 border border-white hover:bg-white hover:text-black transition"
-        >
-          Enter Site
-        </button>
-      )}
+      {/* Counter */}
+      <div
+        ref={counterRef}
+        className="mt-6 text-lg opacity-80 tracking-widest"
+      >
+        0%
+      </div>
     </div>
   );
 };
