@@ -6,7 +6,30 @@ const Loader = ({ onComplete }) => {
   const lettersRef = useRef([]);
   const counterRef = useRef(null);
 
+  // ✅ NEW refs for reel digits
+  const tensRef = useRef(null);
+  const onesRef = useRef(null);
+
   useEffect(() => {
+
+    // ✅ CREATE DIGITS (0–9 stack)
+    const createDigits = (ref) => {
+      if (!ref.current) return;
+      ref.current.innerHTML = "";
+      for (let i = 0; i < 10; i++) {
+        const el = document.createElement("div");
+        el.innerText = i;
+        el.style.height = "1em";
+        el.style.display = "flex";
+        el.style.alignItems = "center";
+        el.style.justifyContent = "center";
+        ref.current.appendChild(el);
+      }
+    };
+
+    createDigits(tensRef);
+    createDigits(onesRef);
+
     const tl = gsap.timeline({
       defaults: { ease: "power3.out" },
       onComplete: () => {
@@ -21,10 +44,8 @@ const Loader = ({ onComplete }) => {
 
     let counter = { value: 0 };
 
-    // 1. Initial fade in whole screen
     tl.fromTo(loaderRef.current, { opacity: 0 }, { opacity: 1, duration: 0.6 })
 
-      // 2. Letters stagger up
       .fromTo(
         lettersRef.current,
         { y: 120, opacity: 0 },
@@ -36,29 +57,50 @@ const Loader = ({ onComplete }) => {
         }
       )
 
-      // 3. Counter animation
+      // ✅ REEL COUNTER (REPLACED LOGIC)
       .to(counter, {
         value: 100,
-        duration: 3, // slower = smoother
+        duration: 3,
         ease: "power2.out",
         onUpdate: () => {
-          if (counterRef.current) {
-            const val = Math.floor(counter.value);
-      
-            // replace 100 with OK
-            if (val >= 100) {
-              counterRef.current.innerText = "OK";
-            } else {
-              counterRef.current.innerText = val + "";
-            }
+          const val = Math.floor(counter.value);
+
+          if (val >= 100) {
+            // animate OK like reel
+            gsap.to(counterRef.current, {
+              y: "-100%",
+              opacity: 0,
+              duration: 0.3,
+              onComplete: () => {
+                counterRef.current.innerHTML = "OK";
+                gsap.fromTo(
+                  counterRef.current,
+                  { y: "100%", opacity: 0 },
+                  { y: "0%", opacity: 1, duration: 0.4 }
+                );
+              },
+            });
+            return;
           }
-        },
-        onComplete: () => {
-          setShowButton(true);
+
+          const tens = Math.floor(val / 10);
+          const ones = val % 10;
+
+          // animate reel
+          gsap.to(tensRef.current, {
+            y: `-${tens}em`,
+            duration: 0.4,
+            ease: "power2.out",
+          });
+
+          gsap.to(onesRef.current, {
+            y: `-${ones}em`,
+            duration: 0.4,
+            ease: "power2.out",
+          });
         },
       })
 
-      // 4. Slight scale effect (premium feel)
       .to(
         lettersRef.current,
         {
@@ -70,18 +112,15 @@ const Loader = ({ onComplete }) => {
         "-=1"
       )
 
-      // 5. Fade out content
       .to([lettersRef.current, counterRef.current], {
         opacity: 0,
         y: -40,
         stagger: 0.1,
-        duration: 0.6,
+        duration: 0.3,
       })
 
-      // 6. Small delay (feels intentional)
-      .to({}, { duration: 0.3 });
+      .to({}, { duration: 0.2 });
 
-      
   }, []);
 
   return (
@@ -89,17 +128,20 @@ const Loader = ({ onComplete }) => {
       ref={loaderRef}
       className="fixed inset-0 bg-[#FEFFFF] text-[#2C3333] flex flex-col items-center justify-center overflow-hidden"
     >
-      <div className="flex text-7xl font-bold tracking-widest text-aeonik">
-        {"OK".split("").map((letter, i) => (
-          <span key={i} ref={(el) => (lettersRef.current[i] = el)}>
-            {letter}
-          </span>
-        ))}
+
+      {/* ✅ UPDATED COUNTER UI (reel style) */}
+      <div
+        ref={counterRef}
+        className="mt-6 text-4xl tracking-widest flex overflow-hidden h-[1em]"
+      >
+        <div className="overflow-hidden h-[1em]">
+          <div ref={tensRef} className="flex flex-col"></div>
+        </div>
+        <div className="overflow-hidden h-[1em]">
+          <div ref={onesRef} className="flex flex-col"></div>
+        </div>
       </div>
 
-      <div ref={counterRef} className="mt-6 text-lg opacity-80 tracking-widest">
-        0
-      </div>
       <div className="absolute bottom-6 left-6 flex">
         {"LOADING".split("").map((letter, i) => (
           <span
