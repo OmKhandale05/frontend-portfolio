@@ -37,20 +37,26 @@ const Loader = ({ onComplete }) => {
       )
 
       // 3. Counter animation
-      .to(
-        counter,
-        {
-          value: 100,
-          duration: 2.5,
-          ease: "power1.out",
-          onUpdate: () => {
-            if (counterRef.current) {
-              counterRef.current.innerText = Math.floor(counter.value) + "%";
+      .to(counter, {
+        value: 100,
+        duration: 3, // slower = smoother
+        ease: "power2.out",
+        onUpdate: () => {
+          if (counterRef.current) {
+            const val = Math.floor(counter.value);
+      
+            // replace 100 with OK
+            if (val >= 100) {
+              counterRef.current.innerText = "OK";
+            } else {
+              counterRef.current.innerText = val + "";
             }
-          },
+          }
         },
-        "-=0.8"
-      )
+        onComplete: () => {
+          setShowButton(true);
+        },
+      })
 
       // 4. Slight scale effect (premium feel)
       .to(
@@ -74,6 +80,8 @@ const Loader = ({ onComplete }) => {
 
       // 6. Small delay (feels intentional)
       .to({}, { duration: 0.3 });
+
+      
   }, []);
 
   return (
@@ -90,7 +98,7 @@ const Loader = ({ onComplete }) => {
       </div>
 
       <div ref={counterRef} className="mt-6 text-lg opacity-80 tracking-widest">
-        0%
+        0
       </div>
       <div className="absolute bottom-6 left-6 flex">
         {"LOADING".split("").map((letter, i) => (
