@@ -56,8 +56,12 @@ const Loader = ({ onComplete }) => {
           duration: 1,
         }
       )
+      .to(counterRef.current, {
+        opacity: 1,
+        duration: 0.3,
+      })
 
-      // ✅ REEL COUNTER (REPLACED LOGIC)
+      
       .to(counter, {
         value: 100,
         duration: 3,
@@ -129,10 +133,10 @@ const Loader = ({ onComplete }) => {
       className="fixed inset-0 bg-[#FEFFFF] text-[#2C3333] flex flex-col items-center justify-center overflow-hidden"
     >
 
-      {/* ✅ UPDATED COUNTER UI (reel style) */}
+      
       <div
         ref={counterRef}
-        className="mt-6 text-4xl tracking-widest flex overflow-hidden h-[1em]"
+        className="mt-6 text-4xl tracking-widest flex overflow-hidden h-[1em] opacity-0"
       >
         <div className="overflow-hidden h-[1em]">
           <div ref={tensRef} className="flex flex-col"></div>
